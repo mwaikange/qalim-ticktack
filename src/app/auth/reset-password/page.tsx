@@ -4,6 +4,7 @@ import { Check, LoaderCircle, LockKeyhole } from 'lucide-react';
 import { authCallbackHref, supabase } from '@/lib/backend';
 import { preparePasswordReset, savePassword } from '@/lib/password-reset';
 import { useNotification } from '@/components/notifications';
+import { PasswordField } from '@/components/password-field';
 
 export default function ResetPasswordPage() {
   const [status,setStatus]=useState<'loading'|'ready'|'saved'|'error'>('loading');
@@ -40,8 +41,8 @@ export default function ResetPasswordPage() {
       }catch(error){notify(error instanceof Error?error.message:'Unable to update your password.','error');}
       finally{setBusy(false);}
     }}>
-      <label>New password<input name="password" type="password" autoComplete="new-password" minLength={8} maxLength={128} placeholder="At least 8 characters" required disabled={busy}/></label>
-      <label>Confirm new password<input name="confirmation" type="password" autoComplete="new-password" minLength={8} maxLength={128} placeholder="Enter your new password again" required disabled={busy}/></label>
+      <PasswordField label="New password" name="password" autoComplete="new-password" minLength={8} maxLength={128} placeholder="At least 8 characters" required disabled={busy}/>
+      <PasswordField label="Confirm new password" name="confirmation" autoComplete="new-password" minLength={8} maxLength={128} placeholder="Enter your new password again" required disabled={busy}/>
       <button className="primary wide" disabled={busy}>{busy?<LoaderCircle className="spin" size={18}/>:<>Save new password<Check size={18}/></>}</button>
     </form>}
   </section></main></div>;

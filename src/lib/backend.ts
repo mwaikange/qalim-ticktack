@@ -9,7 +9,9 @@ const emailOrigin = 'https://qalim-ticktack.vercel.app';
 export const isSupabase = !!(url && key);
 // Keep email callback tokens before Supabase consumes and removes the URL fragment.
 export const authCallbackHref = typeof window === 'undefined' ? '' : window.location.href;
-export const supabase = isSupabase ? createClient(url!, key!) : null;
+export const supabase = isSupabase ? createClient(url!, key!,{
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true},
+}) : null;
 async function local(body?: object) {
   const response=await fetch('/api/local',{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,cache:'no-store'});
   const data=await response.json(); if(!response.ok) throw new Error(data.error || 'Unable to connect. Try again.'); return data;
