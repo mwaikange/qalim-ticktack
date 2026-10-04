@@ -22,6 +22,11 @@ export default function TickTack(){
 }
 function PlayRoom(){
   const room=useGameRoom();const {user,data,game,busy}=room;
+  const [splashComplete,setSplashComplete]=useState(false);
+  useEffect(()=>{
+    const timer=window.setTimeout(()=>setSplashComplete(true),4000);
+    return()=>window.clearTimeout(timer);
+  },[]);
   const sounds=useGameSounds(game);
   const [tab,setTab]=useState<'lobby'|'history'>('lobby');const [resigning,setResigning]=useState(false);
   useEffect(()=>{
@@ -36,7 +41,7 @@ function PlayRoom(){
   const yourTurn=game?.status==='playing'&&game.current_turn===yourMark;
   const opponentId=game?.player_x_id===user?.id?game?.player_o_id:game?.player_x_id;
   const opponentOnline=!!opponentId&&!!data?.onlineIds.includes(opponentId);
-  if(!room.ready)return <AppSplash/>;
+  if(!room.ready||!splashComplete)return <AppSplash/>;
   return <div className={`app-shell ${user ? '' : 'auth-screen'}`}><header><a className="brand" href="/" aria-label="QALIM tickTack home"><span className="brand-icon"><span>×</span><span>○</span></span><span className="brand-name"><small>QALIM</small>tickTack<span className="brand-dot">.</span></span></a><div className="header-right"><span className="edition">{isSupabase?'ONLINE PLAY':'LOCALHOST EDITION'}</span>{user&&<><span className="user-chip"><span className="avatar">{user.username.slice(0,1).toUpperCase()}</span><span>{user.username}</span></span><button className="icon-button" disabled={busy} onClick={()=>void room.logout()} aria-label="Sign out" title="Sign out"><LogOut size={18}/></button></>}</div></header>
   <main>{!room.ready?<div className="initial-loading"><LoaderCircle className="spin"/><p>Getting your board ready…</p></div>:!user?<div className="welcome-layout"><section className="welcome"><div className="eyebrow"><span className="tiny-dot"/> TWO PLAYERS. NINE SQUARES.</div><h1>A little board.<br/>A big <em>rivalry.</em></h1><p>The classic you know, with a real opponent.<br/>Find a challenge. Take your turn. Make your mark.</p><div className="welcome-board" aria-hidden="true"><span className="hero-x">×</span><span/><span className="hero-o">○</span><span/><span className="hero-x">×</span><span/><span className="hero-o">○</span><span/><span className="hero-x highlight">×</span></div><div className="welcome-foot"><Check size={17}/> Real-time matches <span/> Saved match history <span/> Made for two</div></section><AuthForm onUser={room.setUser}/></div>:<>
   <div className="topline"><span className="breadcrumb">PLAYROOM <ChevronRight size={13}/>{game?'YOUR MATCH':tab==='history'?'MATCH HISTORY':'LOBBY'}</span><span className={`connection ${room.connected?'':'disconnected'}`}>{room.connected?<Radio size={13}/>:<WifiOff size={13}/>} {room.connected?'Live updates connected':'Reconnecting · retrying automatically'}</span></div>
