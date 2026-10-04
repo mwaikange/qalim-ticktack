@@ -62,3 +62,45 @@
   .dialog-card{padding-top:24px;padding-bottom:22px}.dialog-card .board{max-width:210px}
   .dialog-card .square{font-size:50px}.dialog-card h2{font-size:28px;margin:10px 0}
 }
+
+/* Sign-in and signup are app screens, not scrolling landing pages. */
+html:has(.auth-screen),body:has(.auth-screen){height:100%;overflow:hidden;overscroll-behavior:none}
+.app-shell.auth-screen{height:var(--auth-height,100dvh);display:flex;flex-direction:column;overflow:hidden}
+.auth-screen header{height:84px;flex-shrink:0}
+.auth-screen main{flex:1;min-height:0;overflow:hidden}
+.auth-screen footer{display:none}
+.auth-screen .initial-loading{min-height:0;height:100%}
+.auth-screen .welcome-layout{height:100%;min-height:0;padding:18px 0;gap:40px;align-items:center}
+.auth-screen .welcome-board{display:none}
+.auth-screen .auth-card{max-width:405px;width:100%;padding:24px;justify-self:center}
+.auth-screen .auth-card h2{margin:16px 0 10px;font-size:28px}
+.auth-screen .auth-card>p{margin-bottom:18px;font-size:12px;line-height:1.6}
+.auth-screen .auth-card label{margin-bottom:14px;gap:6px}
+.auth-screen .auth-card input{min-height:44px;padding:10px 12px}
+.auth-screen .auth-switch{padding:8px 0;min-height:44px}
+.auth-screen .local-note{padding-top:10px}
+.auth-screen .form-error,.auth-screen .form-info{padding:9px 10px;font-size:11px;line-height:1.5;margin-bottom:12px}
+@media(max-width:800px){
+  .auth-screen header{height:64px;justify-content:center;border-bottom:0}
+  .auth-screen .header-right{display:none}
+  .auth-screen .welcome-layout{display:flex;justify-content:center;padding:12px 0 max(12px,env(safe-area-inset-bottom));gap:0}
+  .auth-screen .welcome{display:none}
+  .auth-screen .auth-card{max-width:400px;padding:22px}
+  .auth-screen .auth-card h2{font-size:27px}
+  .auth-screen .primary{min-height:44px}
+  .auth-screen .local-note{display:none}
+}
+@media(max-height:700px){
+  .auth-screen .auth-card{padding:18px}
+  .auth-screen .auth-card>.eyebrow,.auth-screen .auth-card>p,.auth-screen .local-note{display:none}
+  .auth-screen .auth-card h2{margin:0 0 18px;font-size:25px}
+  .auth-screen .welcome h1{font-size:43px}
+  .auth-screen .welcome-foot{display:none}
+}
+.auth-keyboard .auth-screen header,.auth-keyboard .auth-screen .auth-card>h2,
+.auth-keyboard .auth-screen .auth-card>.eyebrow,.auth-keyboard .auth-screen .auth-card>p,
+.auth-keyboard .auth-screen .auth-switch,.auth-keyboard .auth-screen .auth-card>.text-button,
+.auth-keyboard .auth-screen .local-note{display:none}
+.auth-keyboard .auth-screen .welcome-layout{padding:8px 0;align-items:center}
+.auth-keyboard .auth-screen .auth-card{padding:12px 16px}
+.auth-keyboard .auth-screen .auth-card label{margin-bottom:9px;gap:4px}

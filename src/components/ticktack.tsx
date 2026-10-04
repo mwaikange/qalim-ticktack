@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowUpRight, ArrowLeft, Check, ChevronRight, CircleDot, Flag, Grid2X2, History as HistoryIcon, LoaderCircle, LogOut, Radio, RefreshCw, Swords, WifiOff, X } from 'lucide-react';
 import { isSupabase } from '@/lib/backend';
 import { resultText, story } from '@/lib/game';
@@ -10,11 +10,18 @@ import { History } from './history';
 export default function TickTack(){
   const room=useGameRoom();const {user,data,game,busy}=room;
   const [tab,setTab]=useState<'lobby'|'history'>('lobby');const [resigning,setResigning]=useState(false);
+  useEffect(()=>{
+    if(user)return;
+    const root=document.documentElement;
+    const fit=()=>{const height=window.visualViewport?.height||window.innerHeight;root.style.setProperty('--auth-height',`${height}px`);root.classList.toggle('auth-keyboard',window.innerWidth<=800&&height<500);};
+    fit();window.addEventListener('resize',fit);window.visualViewport?.addEventListener('resize',fit);
+    return()=>{window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);root.style.removeProperty('--auth-height');root.classList.remove('auth-keyboard');};
+  },[user]);
   const yourMark=game?.player_x_id===user?.id?'X':'O';
   const yourTurn=game?.status==='playing'&&game.current_turn===yourMark;
   const opponentId=game?.player_x_id===user?.id?game?.player_o_id:game?.player_x_id;
   const opponentOnline=!!opponentId&&!!data?.onlineIds.includes(opponentId);
-  return <div className="app-shell"><header><a className="brand" href="/" aria-label="QALIM tickTack home"><span className="brand-icon"><span>×</span><span>○</span></span><span className="brand-name"><small>QALIM</small>tickTack<span className="brand-dot">.</span></span></a><div className="header-right"><span className="edition">{isSupabase?'ONLINE PLAY':'LOCALHOST EDITION'}</span>{user&&<><span className="user-chip"><span className="avatar">{user.username.slice(0,1).toUpperCase()}</span><span>{user.username}</span></span><button className="icon-button" disabled={busy} onClick={()=>void room.logout()} aria-label="Sign out" title="Sign out"><LogOut size={18}/></button></>}</div></header>
+  return <div className={`app-shell ${user ? '' : 'auth-screen'}`}><header><a className="brand" href="/" aria-label="QALIM tickTack home"><span className="brand-icon"><span>×</span><span>○</span></span><span className="brand-name"><small>QALIM</small>tickTack<span className="brand-dot">.</span></span></a><div className="header-right"><span className="edition">{isSupabase?'ONLINE PLAY':'LOCALHOST EDITION'}</span>{user&&<><span className="user-chip"><span className="avatar">{user.username.slice(0,1).toUpperCase()}</span><span>{user.username}</span></span><button className="icon-button" disabled={busy} onClick={()=>void room.logout()} aria-label="Sign out" title="Sign out"><LogOut size={18}/></button></>}</div></header>
   <main>{!room.ready?<div className="initial-loading"><LoaderCircle className="spin"/><p>Getting your board ready…</p></div>:!user?<div className="welcome-layout"><section className="welcome"><div className="eyebrow"><span className="tiny-dot"/> TWO PLAYERS. NINE SQUARES.</div><h1>A little board.<br/>A big <em>rivalry.</em></h1><p>The classic you know, with a real opponent.<br/>Find a challenge. Take your turn. Make your mark.</p><div className="welcome-board" aria-hidden="true"><span className="hero-x">×</span><span/><span className="hero-o">○</span><span/><span className="hero-x">×</span><span/><span className="hero-o">○</span><span/><span className="hero-x highlight">×</span></div><div className="welcome-foot"><Check size={17}/> Real-time matches <span/> Saved match history <span/> Made for two</div></section><AuthForm onUser={room.setUser} notice={room.error}/></div>:<>
   <div className="topline"><span className="breadcrumb">PLAYROOM <ChevronRight size={13}/>{game?'YOUR MATCH':tab==='history'?'MATCH HISTORY':'LOBBY'}</span><span className={`connection ${room.connected?'':'disconnected'}`}>{room.connected?<Radio size={13}/>:<WifiOff size={13}/>} {room.connected?'Live updates connected':'Reconnecting · retrying automatically'}</span></div>
   {room.error&&<div className="error-banner" role="alert"><span>{room.error}</span><button className="icon-button" aria-label="Dismiss error" onClick={()=>room.setError('')}><X size={16}/></button></div>}
