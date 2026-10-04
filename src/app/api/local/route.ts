@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     if(action==='logout'){db.logout(tokenOf(req));const res=NextResponse.json({ok:true});res.cookies.delete('qalim_session');return res;}
     if(action!=='create'&&typeof body.gameId!=='string')throw new Error('Choose a valid game.');
     let game;
-    switch(action){case 'create':game=db.create(user);break;case 'join':game=db.join(user,body.gameId);break;case 'move':game=db.play(user,body.gameId,body.cell);break;case 'cancel':db.cancel(user,body.gameId);break;case 'resign':db.resign(user,body.gameId);break;default:throw new Error('Unknown action.');}
+    switch(action){case 'create':game=db.create(user,body.mode);break;case 'join':game=db.join(user,body.gameId);break;case 'move':game=db.play(user,body.gameId,body.cell);break;case 'cancel':db.cancel(user,body.gameId);break;case 'resign':db.resign(user,body.gameId);break;default:throw new Error('Unknown action.');}
     return NextResponse.json({game:game||null});
   } catch(e) {return NextResponse.json({error:e instanceof Error?e.message:'Something went wrong.'},{status:400});}
 }

@@ -18,6 +18,8 @@ Sign in with the Expo account that owns the linked project. `EAS_NO_VCS` allows 
 
 The 1024 x 1024 icon is `assets/app-icon.png`. Android's adaptive foreground and monochrome icons are beside it and are referenced by `app.json`.
 
+The native launch splash is configured in `app.json` through `expo-splash-screen`: dark green background and the lime XO icon. The loading view carries the QALIM tickTack wording until the live game opens. Rebuild the APK to include the native splash; web game effects and rules update when Vercel deploys. Test the actual splash in the release APK, since Expo Go does not show the same launch screen.
+
 Local preview (Expo Go with compatible SDK):
 
 ```powershell

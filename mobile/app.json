@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/app-icon.png",
     "userInterfaceStyle": "light",
+    "plugins": [["expo-splash-screen", {"backgroundColor":"#21332d","image":"./assets/app-icon.png","imageWidth":200,"resizeMode":"contain"}]],
     "ios": {
       "supportsTablet": true
     },
@@ -22,7 +23,9 @@
       "favicon": "./assets/app-icon.png"
     },
     "extra": {
-      "eas": { "projectId": "f4a131a8-75d5-42d2-927b-9086901c3d57" }
+      "eas": {
+        "projectId": "f4a131a8-75d5-42d2-927b-9086901c3d57"
+      }
     }
   }
 }

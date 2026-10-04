@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
-import type { Game } from '../src/lib/game';
+import { move, type Game, type Bomb } from '../src/lib/game';
 test('PostgreSQL migration: authentication, atomic lifecycle, move validation, RLS and private results',async()=>{
   const db=new PGlite();
   try {
@@ -28,6 +28,8 @@ test('PostgreSQL migration: authentication, atomic lifecycle, move validation, R
     await as(b);await assert.rejects(db.query('select public.make_move($1,0)',[g.id]),/occupied/);await rpc('public.make_move($1,3)',[g.id]);
     await as(a);await rpc('public.make_move($1,1)',[g.id]);await as(b);await rpc('public.make_move($1,4)',[g.id]);await as(a);
     const won=await rpc<Game>('public.make_move($1,2)',[g.id]);assert.equal(won.winner_id,a);assert.deepEqual(won.winning_cells,[0,1,2]);assert.equal(won.status,'finished');
+    await db.exec(readFileSync(new URL('../supabase/migrations/202610040002_bombs.sql',import.meta.url),'utf8'));
+    const preserved=await db.query<Game>('select * from public.games where id=$1',[g.id]);assert.equal(preserved.rows[0].move_count,5);assert.deepEqual(preserved.rows[0].board,won.board);assert.equal(preserved.rows[0].winner_id,a);
     await assert.rejects(db.query('select public.make_move($1,5)',[g.id]),/not accepting/);
     const own=await rpc<{history:Game[];stats:{wins:number}}>('public.get_snapshot()');assert.equal(own.history[0].id,g.id);assert.equal(own.stats.wins,1);
     await as(b);const other=await rpc<{stats:{losses:number}}>('public.get_snapshot()');assert.equal(other.stats.losses,1);
@@ -37,5 +39,21 @@ test('PostgreSQL migration: authentication, atomic lifecycle, move validation, R
     let result:Game|null=null;for(const [i,cell] of [0,1,2,4,3,5,7,6,8].entries()){await as(i%2?b:a);result=await rpc<Game>('public.make_move($1,$2)',[draw.id,cell]);}
     assert.equal(result?.finish_reason,'draw');assert.equal(result?.winner_id,null);
     await as(a);const resigned=await rpc<Game>('public.create_challenge()');await as(b);await rpc('public.join_challenge($1)',[resigned.id]);await as(a);await rpc('public.resign_game($1)',[resigned.id]);const recap=await rpc<{history:Game[]}>('public.get_snapshot()');assert.equal(recap.history[0].finish_reason,'resignation');assert.equal(recap.history[0].winner_id,b);
+    await as(a);const bombGame=await rpc<Game>('public.create_bomb_challenge()');assert.equal(bombGame.board.length,16);assert.equal(bombGame.mode,'bombs');assert.deepEqual(bombGame.bomb_events,[]);
+    const bombs:Bomb[]=[{cell:5,type:'opponent'},{cell:10,type:'both'}];
+    await db.query('delete from public.game_bombs where game_id=$1',[bombGame.id]);
+    for(const bomb of bombs)await db.query('insert into public.game_bombs(game_id,cell,type) values($1,$2,$3)',[bombGame.id,bomb.cell,bomb.type]);
+    await db.exec('set role authenticated');await assert.rejects(db.query('select * from public.game_bombs'),/permission denied/);await db.exec('reset role');
+    await as(b);let expected=await rpc<Game>('public.join_challenge($1)',[bombGame.id]);
+    for(const [index,cell] of [0,4,1,6,5,8,2,9,10,4,0,8,1,12,3].entries()){
+      const id=index%2?b:a;await as(id);expected=move(expected,id,cell,bombs);
+      const actual=await rpc<Game>('public.make_move($1,$2)',[bombGame.id,cell]);
+      for(const key of ['board','current_turn','move_order','move_count','bomb_events','status','winner_id','winning_cells'] as const)assert.deepEqual(actual[key],expected[key],`SQL/JS mismatch for ${key} on turn ${index+1}`);
+    }
+    assert.equal(expected.move_count,15);assert.equal(expected.winner_id,a);assert.deepEqual(expected.winning_cells,[0,1,2,3]);assert.equal(expected.bomb_events?.length,2);
+    const bombHistory=await rpc<{history:Game[]}>('public.get_snapshot()');assert.equal(bombHistory.history[0].bomb_events?.length,2);
+    await as(a);const repeat=await rpc<Game>('public.create_bomb_challenge()');await db.query('delete from public.game_bombs where game_id=$1',[repeat.id]);await db.query("insert into public.game_bombs(game_id,cell,type) values($1,10,'both')",[repeat.id]);
+    await as(b);await rpc('public.join_challenge($1)',[repeat.id]);await as(a);const cleared=await rpc<Game>('public.make_move($1,10)',[repeat.id]);assert.equal(cleared.board[10],'');
+    await as(b);const reused=await rpc<Game>('public.make_move($1,10)',[repeat.id]);assert.equal(reused.board[10],'O');assert.equal(reused.bomb_events?.length,1);
   } finally {await db.close();}
 });

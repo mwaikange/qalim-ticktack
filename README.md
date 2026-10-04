@@ -65,6 +65,18 @@ In Supabase Authentication → URL Configuration, set Site URL to `https://qalim
 
 The login form sends password reset emails through Supabase. The reset page verifies the email session, lets the player choose a new password, then tells them to return to the app. Dashboard recovery links landing at the Site URL are forwarded to that reset page. Confirmation emails also tell players to return to the app, without a web play button. All app-generated email links use the live Vercel domain, including when testing with Supabase on localhost.
 
+## Splash and Bombs mode
+
+Classic 3×3 matches remain available. Choose **Bombs · 4×4** before creating a challenge to play four in a row with two invisible, randomly placed, one-use bombs. Rival reset clears up to two of the opponent's oldest active marks. Double reset clears up to two oldest active marks from each player. Explosions happen before victory is checked. The turn still passes normally; cleared squares can be played again. Bomb events and total moves are saved with the result.
+
+To enable Bombs online, run `supabase/migrations/202610040002_bombs.sql` in the existing Supabase project's SQL editor after the initial setup. Secret bomb positions are in a separate table without player read permissions and never included in snapshots or Realtime. Existing classic matches and histories are preserved.
+
+Winners get five seconds of confetti and balloons; losers get brief, slow red ring pulses. Draws do not trigger these effects, and viewing an old result does not replay them. Effects respect reduced motion and never block controls.
+
+Each confirmed move plays a short wooden-piece sound, including opponent moves after the player interacts with the app. The sound toggle remembers its setting on the device. Reloading a saved board or polling unchanged data does not replay moves. Sounds are generated locally without audio downloads.
+
+The branded web loading screen updates with Vercel. The native Expo splash uses `expo-splash-screen` and needs a **new APK build**; see `mobile/README.md`.
+
 ## App icon and Android APK
 
 The downloadable XO icon is `assets/app-icon.png` (1024 x 1024), with an editable SVG and Android adaptive versions alongside it. It is also served at `/app-icon.png`.

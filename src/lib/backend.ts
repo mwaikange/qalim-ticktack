@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Game, Player } from './game';
+import type { Game, GameMode, Player } from './game';
 import type { Snapshot } from './local-store';
 import { confirmationRedirect } from './confirmation';
 import { passwordResetRedirect } from './password-reset';
@@ -47,11 +47,11 @@ export async function snapshot(user: Player, onlineIds: string[] = []): Promise<
   const q=await supabase.rpc('get_snapshot');if(q.error)throw new Error(q.error.message);
   return { ...q.data, user, onlineIds };
 }
-export async function act(action: 'create'|'join'|'move'|'cancel'|'resign', gameId?: string, cell?: number): Promise<Game | null> {
-  if(!supabase)return (await local({action,gameId,cell})).game;
-  const functions={create:'create_challenge',join:'join_challenge',move:'make_move',cancel:'cancel_challenge',resign:'resign_game'};
+export async function act(action: 'create'|'join'|'move'|'cancel'|'resign', gameId?: string, cell?: number,mode:GameMode='classic'): Promise<Game | null> {
+  if(!supabase)return (await local({action,gameId,cell,mode})).game;
+  const functions={create:mode==='bombs'?'create_bomb_challenge':'create_challenge',join:'join_challenge',move:'make_move',cancel:'cancel_challenge',resign:'resign_game'};
   const args=action==='create'?{}:action==='move'?{p_game_id:gameId,p_cell:cell}:{p_game_id:gameId};
-  const {data,error}=await supabase.rpc(functions[action],args);if(error)throw new Error(error.message);return data;
+  const {data,error}=await supabase.rpc(functions[action],args);if(error)throw new Error(mode==='bombs'&&error.code==='PGRST202'?'Bombs mode needs the new Supabase SQL upgrade. Classic mode is ready to play.':error.message);return data;
 }
 export function subscribe(user: Player, onUpdate: () => void, onConnection: (connected: boolean) => void, onPresence: (ids: string[]) => void) {
   if(!supabase){const stream=new EventSource('/api/local?stream=1');stream.onopen=()=>{onConnection(true);onUpdate();};stream.onmessage=()=>onUpdate();stream.onerror=()=>onConnection(false);return()=>stream.close();}
