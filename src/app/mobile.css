@@ -118,3 +118,16 @@ html:has(.auth-screen),body:has(.auth-screen){height:100%;overflow:hidden;oversc
   .auth-screen .brand-icon{width:clamp(64px,18vw,76px);height:clamp(64px,18vw,76px);font-size:clamp(40px,11vw,47px);border-radius:20px}
   .auth-screen .brand-name{font-size:clamp(35px,11vw,44px)}
 }
+
+/* Center the larger brand within the whole gap above the auth card. */
+.auth-screen .brand-icon{width:70px;height:70px;font-size:44px}
+.auth-screen .brand-name{font-size:42px}
+@media(max-width:800px){
+  .auth-screen header{flex:1;height:auto;min-height:104px}
+  .auth-screen main{flex:0 1 auto}
+  .auth-screen .welcome-layout{height:auto;padding:0 0 max(28px,6dvh,env(safe-area-inset-bottom))}
+  .auth-screen .brand-icon{width:clamp(70px,20vw,84px);height:clamp(70px,20vw,84px);font-size:clamp(44px,12vw,52px)}
+  .auth-screen .brand-name{font-size:clamp(38px,12vw,48px)}
+  .auth-keyboard .auth-screen main{flex:1}
+  .auth-keyboard .auth-screen .welcome-layout{height:100%;padding:8px 0}
+}
