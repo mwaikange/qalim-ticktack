@@ -59,6 +59,12 @@ Local mode uses transactional SQLite with equivalent validation, scrypt password
 
 Realtime notifications trigger a fresh read of authoritative state. Ten-second reconciliation and focus/online refresh also catch stale challenges and missed notifications. Opponent presence is advisory; an absent player does not automatically lose. They can reconnect, and either player may resign. An open challenge remains until cancelled.
 
+## Supabase email links
+
+In Supabase Authentication → URL Configuration, set Site URL to `https://qalim-ticktack.vercel.app` and allow both `https://qalim-ticktack.vercel.app/auth/confirm` and `https://qalim-ticktack.vercel.app/auth/reset-password` as Redirect URLs. Keep `{{ .ConfirmationURL }}` as the link in the confirmation and reset-password email templates. Send a new email after changing settings; old emails can still contain localhost links.
+
+The login form sends password reset emails through Supabase. The reset page verifies the email session, lets the player choose a new password, then tells them to return to the app. Dashboard recovery links landing at the Site URL are forwarded to that reset page. Confirmation emails also tell players to return to the app, without a web play button. All app-generated email links use the live Vercel domain, including when testing with Supabase on localhost.
+
 ## App icon and Android APK
 
 The downloadable XO icon is `assets/app-icon.png` (1024 x 1024), with an editable SVG and Android adaptive versions alongside it. It is also served at `/app-icon.png`.

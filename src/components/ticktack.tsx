@@ -1,13 +1,22 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { ArrowUpRight, ArrowLeft, Check, ChevronRight, CircleDot, Flag, Grid2X2, History as HistoryIcon, LoaderCircle, LogOut, Radio, RefreshCw, Swords, WifiOff, X } from 'lucide-react';
-import { isSupabase } from '@/lib/backend';
+import { authCallbackHref, isSupabase } from '@/lib/backend';
+import { recoveryCallbackRedirect } from '@/lib/password-reset';
 import { resultText, story } from '@/lib/game';
 import { useGameRoom } from '@/hooks/use-game-room';
 import { AuthForm } from './auth-form';
 import { Board } from './board';
 import { History } from './history';
 export default function TickTack(){
+  const [checked,setChecked]=useState(false);
+  useEffect(()=>{
+    const redirect=recoveryCallbackRedirect(authCallbackHref || window.location.href);
+    if(redirect)window.location.replace(redirect);else setChecked(true);
+  },[]);
+  return checked?<PlayRoom/>:<div className="initial-loading"><LoaderCircle className="spin"/><p>Getting your board ready…</p></div>;
+}
+function PlayRoom(){
   const room=useGameRoom();const {user,data,game,busy}=room;
   const [tab,setTab]=useState<'lobby'|'history'>('lobby');const [resigning,setResigning]=useState(false);
   useEffect(()=>{

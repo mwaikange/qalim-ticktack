@@ -2,9 +2,13 @@ import { createClient } from '@supabase/supabase-js';
 import type { Game, Player } from './game';
 import type { Snapshot } from './local-store';
 import { confirmationRedirect } from './confirmation';
+import { passwordResetRedirect } from './password-reset';
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const emailOrigin = 'https://qalim-ticktack.vercel.app';
 export const isSupabase = !!(url && key);
+// Keep email callback tokens before Supabase consumes and removes the URL fragment.
+export const authCallbackHref = typeof window === 'undefined' ? '' : window.location.href;
 export const supabase = isSupabase ? createClient(url!, key!) : null;
 async function local(body?: object) {
   const response=await fetch('/api/local',{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,cache:'no-store'});
@@ -20,14 +24,19 @@ export async function identity(): Promise<Player | null> {
 }
 export async function authenticate(register: boolean, email: string, password: string, username: string) {
   if(!supabase)return (await local({action:register?'register':'login',email,password,username})).user as Player;
-  const result=register?await supabase.auth.signUp({email,password,options:{data:{username},emailRedirectTo:confirmationRedirect(window.location.origin)}}):await supabase.auth.signInWithPassword({email,password});
+  const result=register?await supabase.auth.signUp({email,password,options:{data:{username},emailRedirectTo:confirmationRedirect(emailOrigin)}}):await supabase.auth.signInWithPassword({email,password});
   if(result.error)throw new Error(result.error.message);
   if(!result.data.session)return null;
   return identity();
 }
 export async function resendConfirmation(email: string) {
   if(!supabase)throw new Error('Email verification is only needed for online accounts.');
-  const {error}=await supabase.auth.resend({type:'signup',email,options:{emailRedirectTo:confirmationRedirect(window.location.origin)}});
+  const {error}=await supabase.auth.resend({type:'signup',email,options:{emailRedirectTo:confirmationRedirect(emailOrigin)}});
+  if(error)throw new Error(error.message);
+}
+export async function requestPasswordReset(email: string) {
+  if(!supabase)throw new Error('Password reset emails are available in the online app. Localhost accounts do not have email delivery.');
+  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:passwordResetRedirect(emailOrigin)});
   if(error)throw new Error(error.message);
 }
 export async function signOut() {if(supabase){const {error}=await supabase.auth.signOut();if(error)throw error;}else await local({action:'logout'});}

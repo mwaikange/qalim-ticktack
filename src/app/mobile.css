@@ -64,6 +64,8 @@
 }
 
 /* Sign-in and signup are app screens, not scrolling landing pages. */
+.auth-card .forgot-password{display:flex;margin:-10px 0 6px auto;min-height:32px;padding:5px 0;color:var(--green)}
+@media(max-height:700px){.auth-card .forgot-password{min-height:28px}}
 html:has(.auth-screen),body:has(.auth-screen){height:100%;overflow:hidden;overscroll-behavior:none}
 .app-shell.auth-screen{height:var(--auth-height,100dvh);display:flex;flex-direction:column;overflow:hidden}
 .auth-screen header{height:84px;flex-shrink:0}
