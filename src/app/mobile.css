@@ -104,3 +104,17 @@ html:has(.auth-screen),body:has(.auth-screen){height:100%;overflow:hidden;oversc
 .auth-keyboard .auth-screen .welcome-layout{padding:8px 0;align-items:center}
 .auth-keyboard .auth-screen .auth-card{padding:12px 16px}
 .auth-keyboard .auth-screen .auth-card label{margin-bottom:9px;gap:4px}
+
+/* Give the auth screens a prominent, centered brand above the form. */
+.auth-screen header{height:118px}
+.auth-screen .brand{gap:18px}
+.auth-screen .brand-icon{width:64px;height:64px;border-radius:18px;font-size:40px}
+.auth-screen .brand-icon span:first-child{padding-top:9px}
+.auth-screen .brand-icon span:last-child{padding-bottom:10px}
+.auth-screen .brand-name{font-size:39px;letter-spacing:-2px}
+.auth-screen .brand-name small{font-size:11px;letter-spacing:4.8px;margin-bottom:7px}
+@media(max-width:800px){
+  .auth-screen header{height:clamp(104px,20dvh,168px);justify-content:center}
+  .auth-screen .brand-icon{width:clamp(64px,18vw,76px);height:clamp(64px,18vw,76px);font-size:clamp(40px,11vw,47px);border-radius:20px}
+  .auth-screen .brand-name{font-size:clamp(35px,11vw,44px)}
+}
