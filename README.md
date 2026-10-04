@@ -59,6 +59,14 @@ Local mode uses transactional SQLite with equivalent validation, scrypt password
 
 Realtime notifications trigger a fresh read of authoritative state. Ten-second reconciliation and focus/online refresh also catch stale challenges and missed notifications. Opponent presence is advisory; an absent player does not automatically lose. They can reconnect, and either player may resign. An open challenge remains until cancelled.
 
+## App icon and Android APK
+
+The downloadable XO icon is `assets/app-icon.png` (1024 x 1024), with an editable SVG and Android adaptive versions alongside it. It is also served at `/app-icon.png`.
+
+The `mobile/` folder is a small Expo WebView wrapper for the live Vercel game. Its icon and EAS project ID are configured. See `mobile/README.md` for the exact APK build commands. Run them inside `mobile`, not the Next.js project root.
+
+Before pushing updates, stage the project files and run `powershell -ExecutionPolicy Bypass -File scripts/sync-vscode.ps1` to sync the user's VS Code copy at `C:\qalim-ticktack-main`. The sync preserves previous versions of changed files under `.codex-sync-backups` and leaves secrets, dependencies, and other local-only files alone.
+
 ## Checks
 
 ```sh

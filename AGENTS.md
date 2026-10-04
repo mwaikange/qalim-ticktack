@@ -1,6 +1,7 @@
 # Working on QALIM tickTack
 
 - Keep things simple. Take the fastest, most efficient route that delivers a working result.
+- Keep the user's VS Code copy at `C:\qalim-ticktack-main` current: sync changed project files there before every GitHub push. Preserve local secrets, installed dependencies, and any user edits; reconcile edits before overwriting them.
 - Prefer small, direct changes and reuse the current stack and components.
 - Do not add unnecessary abstractions, dependencies, features, or approval steps.
 - Prioritize a working end-to-end app. Do not substitute a mockup for real multiplayer.

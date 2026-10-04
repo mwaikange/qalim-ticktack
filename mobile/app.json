@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "QALIM tickTack",
+    "slug": "qalim-ticktack",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/app-icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.qalim.ticktack",
+      "softwareKeyboardLayoutMode": "resize",
+      "adaptiveIcon": {
+        "backgroundColor": "#21332d",
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "monochromeImage": "./assets/adaptive-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/app-icon.png"
+    },
+    "extra": {
+      "eas": { "projectId": "f4a131a8-75d5-42d2-927b-9086901c3d57" }
+    }
+  }
+}
