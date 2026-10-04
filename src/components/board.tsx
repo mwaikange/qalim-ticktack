@@ -1,0 +1,4 @@
+import type { Game } from '@/lib/game';
+export function Board({game,onMove,disabled=false,small=false}:{game:Game;onMove?:(cell:number)=>void;disabled?:boolean;small?:boolean}){
+  return <div className={`board ${small?'mini-board':''}`} role="group" aria-label="Tic-tac-toe board">{game.board.map((mark,i)=>onMove?<button key={i} className={`square ${mark.toLowerCase()} ${game.winning_cells.includes(i)?'winning':''}`} disabled={disabled||!!mark} aria-label={`Row ${Math.floor(i/3)+1}, column ${i%3+1}: ${mark||'empty'}`} onClick={()=>onMove(i)}>{mark&&<span>{mark==='X'?'×':'○'}</span>}</button>:<div key={i} className={`square ${mark.toLowerCase()} ${game.winning_cells.includes(i)?'winning':''}`} aria-label={`Square ${i+1}: ${mark||'empty'}`}>{mark&&<span>{mark==='X'?'×':'○'}</span>}</div>)}</div>;
+}

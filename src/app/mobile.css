@@ -1,0 +1,60 @@
+/* Phone-first refinements; shared desktop styles stay in globals.css. */
+.result-dialog{max-width:none;max-height:none}
+.result-dialog::backdrop{background:transparent}
+@media(max-width:800px){
+  .app-shell{padding-left:max(19px,env(safe-area-inset-left));padding-right:max(19px,env(safe-area-inset-right))}
+  header{padding-top:env(safe-area-inset-top)}
+  footer{padding-bottom:max(25px,env(safe-area-inset-bottom))}
+  .icon-button{min-width:44px;min-height:44px}
+  .tabs button{min-height:48px;padding-top:12px;padding-bottom:16px}
+  .text-button,.auth-switch button{min-height:44px}
+  .auth-card input{font-size:16px;min-height:48px}
+  .primary,.secondary,.danger,.challenge-row .secondary{min-height:48px}
+  .square{touch-action:manipulation}
+  .section-heading select{font-size:12px;min-height:44px}
+  .close-dialog{top:4px;right:4px}
+}
+@media(max-width:480px){
+  .dashboard{display:flex;flex-direction:column;gap:25px}
+  .dashboard-aside{display:contents}
+  .challenge-card{order:0;padding:20px}
+  .challenge-card>svg{float:right;margin:0}
+  .challenge-card h2{font-size:22px;margin-bottom:8px}
+  .challenge-card p{font-size:11px;margin-bottom:16px;max-width:245px;line-height:1.6}
+  .challenge-card small{margin-top:10px}
+  .dashboard-content{order:1}
+  .stats-card{order:2}
+  .lobby-intro{margin-bottom:22px}
+  .lobby-intro h1{font-size:33px;margin:12px 0}
+  .lobby-intro>.eyebrow{font-size:7px}
+  .topline{padding:18px 0 23px}
+  .welcome-layout{padding:24px 0;gap:23px}
+  .welcome h1{font-size:43px;margin:16px 0 13px;letter-spacing:-2px}
+  .welcome>p{font-size:12px;line-height:1.7}
+  .welcome-foot{margin-top:17px}
+  .auth-card h2{font-size:26px;margin-top:18px}
+  .auth-card{padding:24px}
+  .game-layout{margin-bottom:35px}
+  .game-main h1{font-size:34px;margin:13px 0 10px}
+  .player-strip{margin:20px 0 17px}
+  .game-main .board{max-width:min(330px,100%)}
+  .board-status{margin:17px 0}
+  .game-actions{margin-top:15px}
+  .history-row .result-pill{margin-left:0}
+  .history-main{overflow-wrap:anywhere}
+  .history-row .history-main{min-width:120px}
+  .dialog-card .board{max-width:260px}
+  .dialog-card .recap-story{margin:17px 0 12px}
+  .match-side{padding:22px}
+}
+@media(max-width:350px){
+  .brand-name{font-size:23px}.brand{gap:8px}.header-right{gap:0}.user-chip{gap:4px}
+  .user-chip>span:last-child{max-width:60px}.breadcrumb{font-size:7px;gap:5px}
+  .connection{font-size:8px;max-width:140px}.lobby-intro h1{font-size:29px}
+  .welcome h1{font-size:38px}.welcome-foot>span{margin:0 1px}
+  .player-strip strong{font-size:10px}.player-strip>div{gap:5px}
+}
+@media(max-height:700px) and (max-width:800px){
+  .dialog-card{padding-top:24px;padding-bottom:22px}.dialog-card .board{max-width:210px}
+  .dialog-card .square{font-size:50px}.dialog-card h2{font-size:28px;margin:10px 0}
+}
