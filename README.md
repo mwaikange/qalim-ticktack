@@ -21,7 +21,7 @@ The localhost server binds to 127.0.0.1. This development backend is intended fo
 
 1. Create a Supabase project.
 2. Open its SQL Editor and run `supabase/migrations/202610040001_ticktack.sql` once. Alternatively, link the Supabase CLI to your project and run `supabase db push`.
-3. In Supabase Auth, enable email/password sign-in. Set your Vercel site URL and localhost URL as allowed site/redirect URLs. With email confirmation enabled, new players must confirm their email before signing in. The profile is created automatically by the database trigger.
+3. In Supabase Auth, enable email/password sign-in. Under **Authentication → URL Configuration**, set **Site URL** to `https://qalim-ticktack.vercel.app` (or your actual production origin). Add `https://qalim-ticktack.vercel.app/auth/confirm` to **Redirect URLs**. For development also add `http://127.0.0.1:3000/auth/confirm` and `http://localhost:3000/auth/confirm`. Keep the default Confirm signup email template's `{{ .ConfirmationURL }}` link. New signups explicitly return to the current site's `/auth/confirm` page, which validates the session and offers a button to play. Expired links show a helpful message; the sign-in form can resend verification emails. The profile is created automatically by the database trigger, and the migration backfills existing Auth accounts.
 4. Copy `.env.example` to `.env.local` for local Supabase testing. Set:
 
 ```dotenv
@@ -35,6 +35,8 @@ The publishable key (or legacy anon key) is safe for browser use with the includ
 6. Test with two real accounts/browser sessions. Verify authentication, joining, turn enforcement, real-time updates, reload recovery and both users' history.
 
 On Vercel the app fails closed if Supabase is not configured; it will not attempt to store live games in ephemeral SQLite files.
+
+If `/rest/v1/profiles` returns `404` with `PGRST205`, the app schema has not been created or is not visible to the API schema cache. Run the complete initial SQL migration in the same Supabase project used by Vercel, then execute `NOTIFY pgrst, 'reload schema';`. The initial migration is for an uninitialized app schema; do not rerun it if the app tables already exist. Creating a Supabase project or Auth user alone does not create the app tables. If a previous verification link already confirmed your email but redirected to localhost, try signing in on the production site after fixing the database; otherwise use Resend verification email after correcting URL Configuration.
 
 ## Stack and architecture
 

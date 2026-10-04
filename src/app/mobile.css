@@ -1,6 +1,10 @@
 /* Phone-first refinements; shared desktop styles stay in globals.css. */
 .result-dialog{max-width:none;max-height:none}
 .result-dialog::backdrop{background:transparent}
+.confirmation-layout{display:flex;align-items:center;justify-content:center;padding:45px 0}
+.confirmation-layout .auth-card{max-width:440px;width:100%}
+.confirmation-symbol{color:var(--green);margin-top:25px}
+.form-info{font-size:12px;color:var(--green);background:#e9f2db;border:1px solid #d9e6c2;border-radius:6px;padding:12px;line-height:1.7;margin-bottom:16px}
 @media(max-width:800px){
   .app-shell{padding-left:max(19px,env(safe-area-inset-left));padding-right:max(19px,env(safe-area-inset-right))}
   header{padding-top:env(safe-area-inset-top)}

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Game, Player } from './game';
 import type { Snapshot } from './local-store';
+import { confirmationRedirect } from './confirmation';
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 export const isSupabase = !!(url && key);
@@ -14,15 +15,20 @@ export async function identity(): Promise<Player | null> {
   const {data,error}=await supabase.auth.getUser();
   if(error||!data.user)return null;
   const {data:profile,error:profileError}=await supabase.from('profiles').select('id,username').eq('id',data.user.id).single();
-  if(profileError)throw new Error('Your profile is unavailable. Check the database migration.');
+  if(profileError)throw new Error(profileError.code==='PGRST205'?'The game database is not set up yet. Run the included Supabase SQL migration to create profiles and games.':profileError.code==='PGRST116'?'Your account exists, but its player profile is missing. Ask the site owner to run the profile backfill in the setup migration.':'Your profile is unavailable. Check the database setup and try again.');
   return profile;
 }
 export async function authenticate(register: boolean, email: string, password: string, username: string) {
   if(!supabase)return (await local({action:register?'register':'login',email,password,username})).user as Player;
-  const result=register?await supabase.auth.signUp({email,password,options:{data:{username}}}):await supabase.auth.signInWithPassword({email,password});
+  const result=register?await supabase.auth.signUp({email,password,options:{data:{username},emailRedirectTo:confirmationRedirect(window.location.origin)}}):await supabase.auth.signInWithPassword({email,password});
   if(result.error)throw new Error(result.error.message);
-  if(!result.data.session)throw new Error('Account created. Check your email to confirm it, then sign in.');
+  if(!result.data.session)return null;
   return identity();
+}
+export async function resendConfirmation(email: string) {
+  if(!supabase)throw new Error('Email verification is only needed for online accounts.');
+  const {error}=await supabase.auth.resend({type:'signup',email,options:{emailRedirectTo:confirmationRedirect(window.location.origin)}});
+  if(error)throw new Error(error.message);
 }
 export async function signOut() {if(supabase){const {error}=await supabase.auth.signOut();if(error)throw error;}else await local({action:'logout'});}
 export async function snapshot(user: Player, onlineIds: string[] = []): Promise<Snapshot> {
