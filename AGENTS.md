@@ -7,6 +7,8 @@
 - Preserve database-authoritative move validation, atomic challenge joining, authentication, and match history.
 - Run checks relevant to the change; avoid repeating checks without a reason.
 - Keep explanations concise and practical.
+- Use the shared notification provider for feedback: slide in from the top right, stay five seconds, then slide out.
+- Use the branded selection menu for popup choices; keep colors, touch targets and keyboard behavior consistent.
 - This project uses Next.js, TypeScript, React, Tailwind and Supabase for hosted multiplayer. SQLite mode is for localhost only; Vercel must use Supabase.
 
 <!-- BEGIN:nextjs-agent-rules -->
