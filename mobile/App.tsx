@@ -1,19 +1,51 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback,useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import { ActivityIndicator, BackHandler, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator,AppState, BackHandler, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import { pushToken } from './push';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
 const GAME_URL = 'https://qalim-ticktack.vercel.app/';
+const GAME_ORIGIN = 'https://qalim-ticktack.vercel.app';
 void SplashScreen.preventAutoHideAsync().catch(()=>{});
 SplashScreen.setOptions({duration:350,fade:true});
 
 export default function App() {
   const webView = useRef<WebView>(null);
+  const pushUser=useRef<string|null>(null);
+  const registering=useRef(false);
+  const emit=useCallback((detail:object)=>{
+    webView.current?.injectJavaScript(`if(location.origin===${JSON.stringify(GAME_ORIGIN)})window.dispatchEvent(new CustomEvent('qalim-native-push',{detail:${JSON.stringify(detail)}}));true;`);
+  },[]);
+  const register=useCallback(async function registerForUser(userId:string):Promise<void>{
+    pushUser.current=userId;
+    if(registering.current)return;
+    registering.current=true;
+    try{
+      const token=await pushToken();
+      if(pushUser.current===userId)emit(token?{type:'token',userId,token}:{type:'disabled',userId});
+    }catch{
+      if(pushUser.current===userId)emit({type:'error',userId});
+    }finally{
+      registering.current=false;
+      if(pushUser.current&&pushUser.current!==userId)void registerForUser(pushUser.current);
+    }
+  },[emit]);
   const [canGoBack, setCanGoBack] = useState(false);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  useEffect(()=>{
+    const open=()=>{
+      webView.current?.injectJavaScript(`if(location.origin===${JSON.stringify(GAME_ORIGIN)}){if(location.pathname!=='/')location.replace(${JSON.stringify(GAME_URL)});else window.dispatchEvent(new CustomEvent('qalim-native-push',{detail:{type:'open'}}));}true;`);
+    };
+    const response=Notifications.addNotificationResponseReceivedListener(open);
+    const foreground=AppState.addEventListener('change',state=>{
+      if(state==='active'){open();if(pushUser.current)void register(pushUser.current);}
+    });
+    return()=>{response.remove();foreground.remove();};
+  },[register]);
   useEffect(()=>{
     const fallback=setTimeout(()=>{void SplashScreen.hideAsync();},8000);
     return()=>clearTimeout(fallback);
@@ -52,6 +84,15 @@ export default function App() {
             startInLoadingState
             bounces={false}
             overScrollMode="never"
+            onMessage={event=>{
+              try{
+                const url=event.nativeEvent.url;
+                if(url!==GAME_ORIGIN&&!url.startsWith(GAME_ORIGIN+'/'))return;
+                const message=JSON.parse(event.nativeEvent.data);
+                if(message.type==='qalim-push-register'&&typeof message.userId==='string'&&/^[a-f0-9-]{36}$/i.test(message.userId))void register(message.userId);
+                if(message.type==='qalim-push-signout')pushUser.current=null;
+              }catch{/* Ignore messages outside the app's push protocol. */}
+            }}
             onNavigationStateChange={state => setCanGoBack(state.canGoBack)}
             onLoadEnd={()=>{void SplashScreen.hideAsync();}}
             onError={() => { setFailed(true);void SplashScreen.hideAsync(); }}

@@ -1,0 +1,5 @@
+project_id = "qalim-ticktack"
+
+[functions.push-challenges]
+# This server-to-server endpoint authenticates its private webhook secret itself.
+verify_jwt = false

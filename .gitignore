@@ -6,3 +6,7 @@ node_modules/
 *.tsbuildinfo
 next-env.d.ts
 .codex-sync-backups/
+**/google-services.json
+**/*firebase-adminsdk*.json
+**/service-account*.json
+.push-setup.sql

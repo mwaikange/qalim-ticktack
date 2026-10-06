@@ -2,6 +2,8 @@
 
 This small Expo app opens https://qalim-ticktack.vercel.app/ in a native WebView. It uses the live Supabase game and needs an internet connection. Web changes appear after Vercel deploys; changes to native code or icons need another APK build.
 
+Challenge push notifications require the Firebase configuration, Expo FCM V1 credentials, and Supabase setup described in [PUSH-SETUP.md](../PUSH-SETUP.md). Follow that guide before rebuilding this version. Notification permission is requested after sign-in; signing out disconnects the device.
+
 The Expo project is already linked to `f4a131a8-75d5-42d2-927b-9086901c3d57` in `app.json`. The preview profile in `eas.json` produces an installable APK rather than a store bundle.
 
 Paste these commands into the VS Code PowerShell terminal:

@@ -23,8 +23,8 @@ test('local bomb positions stay outside snapshots, with matching atomic server r
     assert.equal(secrets.length,2);assert.equal(new Set(secrets.map(item=>item.cell)).size,2);assert.deepEqual(created.bomb_events,[]);
     assert.equal('game_bombs' in db.snapshot(x).active!,false);assert.equal('metadata' in db.snapshot(x).active!,false);
     db.db.prepare('delete from game_bombs where game_id=?').run(created.id);db.db.prepare('insert into game_bombs values(?,?,?)').run(created.id,10,'both');db.join(o,created.id);
-    const cleared=db.play(x,created.id,10);assert.equal(cleared.board[10],'');assert.equal(cleared.bomb_events?.length,1);
-    assert.throws(()=>db.play(x,created.id,10),/turn/);assert.equal(db.game(created.id).move_count,1);
-    assert.equal(db.play(o,created.id,10).board[10],'O');assert.equal(db.game(created.id).bomb_events?.length,1);
+    assert.equal(db.game(created.id).current_turn,'O');const cleared=db.play(o,created.id,10);assert.equal(cleared.board[10],'');assert.equal(cleared.bomb_events?.length,1);
+    assert.throws(()=>db.play(o,created.id,10),/turn/);assert.equal(db.game(created.id).move_count,1);
+    assert.equal(db.play(x,created.id,10).board[10],'X');assert.equal(db.game(created.id).bomb_events?.length,1);
   }finally{db.db.close();}
 });

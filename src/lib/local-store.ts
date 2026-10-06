@@ -84,7 +84,7 @@ export class LocalStore {
       const g = this.game(id);
       if (g.player_x_id === user.id) throw new Error('You cannot join your own challenge.');
       if (g.status !== 'waiting' || g.player_o_id) throw new Error('Another player already joined, or this challenge was cancelled.');
-      const next: Game = { ...g, player_o_id: user.id, player_o_name: user.username, status: 'playing', updated_at: new Date().toISOString() };
+      const next: Game = { ...g, player_o_id: user.id, player_o_name: user.username, status: 'playing', current_turn:'O', updated_at: new Date().toISOString() };
       this.save(next); return next;
     });
   }

@@ -1,0 +1,8 @@
+node_modules/
+.expo/
+dist/
+.env*
+*.tsbuildinfo
+*firebase-adminsdk*.json
+service-account*.json
+# google-services.json is the public Android app configuration and must be uploaded.
