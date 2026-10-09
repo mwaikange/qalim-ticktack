@@ -1,0 +1,12 @@
+import { Shield, Swords, CircleDot } from 'lucide-react';
+import { emptyTactics, movesPlayed, pressure, tacticStory, type Game, type Tactic } from '@/lib/game';
+export function TacticsPanel({game,mark,tactic,onTactic,disabled}:{game:Game;mark:'X'|'O';tactic:Tactic;onTactic:(value:Tactic)=>void;disabled:boolean}){
+  const state=game.tactics||emptyTactics();const rival=mark==='X'?'O':'X';const last=state.events.filter(e=>e.turn===movesPlayed(game));
+  return <section className="tactics-panel" aria-label="Tactics and pressure">
+    <div className="tactics-score"><span>× Pressure <b>{pressure(game.board,'X')}</b></span><span>Move <b>{movesPlayed(game)} / 40</b></span><span>○ Pressure <b>{pressure(game.board,'O')}</b></span></div>
+    <div className="power-status"><span>Your power: <b>{state.used[mark]?'spent':'ready'}</b></span><span>Rival power: <b>{state.used[rival]?'spent':'ready'}</b></span></div>
+    {game.status==='playing'&&<><div className="tactic-picker" role="group" aria-label="Choose your tactic">{(['place','capture','shield'] as const).map(action=><button key={action} className={tactic===action?'active':''} aria-pressed={tactic===action} disabled={disabled||(action!=='place'&&state.used[mark])} onClick={()=>onTactic(action)}>{action==='place'?<CircleDot size={16}/>:action==='capture'?<Swords size={16}/>:<Shield size={16}/>} {action==='place'?'Place':action==='capture'?'Capture':'Shield'}</button>)}</div><p className="tactic-hint">{tactic==='capture'?'Tap an unshielded rival mark to take its square.':tactic==='shield'?'Tap an empty square to place a mark protected from capture.':'Tap an empty square. With four marks, your oldest fades first.'}</p></>}
+    {last.length>0&&<p className="tactic-recap" aria-live="polite">{last.map(tacticStory).join(' ')}</p>}
+    <details className="bomb-rules"><summary>Tactics XO rules</summary><p>O moves first. Connect four to win. Keep at most four marks: placing a fifth retires your oldest before checking victory. Each player has one power for the whole match: capture an unshielded rival mark, or shield a new mark. A shield blocks capture but still expires with age. Every action takes a turn.</p><p>After 40 moves, higher pressure wins: each line with only your marks scores 1 point for two marks or 3 for three. Blocked lines score zero. Equal pressure is a draw. Build threats, protect a key square, and time your power.</p></details>
+  </section>;
+}

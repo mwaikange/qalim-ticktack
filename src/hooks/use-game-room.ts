@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { act, identity, signOut, snapshot, subscribe, supabase } from '@/lib/backend';
 import type { Snapshot } from '@/lib/local-store';
-import { bombStory, resultText, type Game, type GameMode, type Player } from '@/lib/game';
+import { bombStory, resultText, type Game, type GameMode, type Player, type Tactic } from '@/lib/game';
 import { useNotification } from '@/components/notifications';
 import { detachPushToken } from '@/lib/mobile-push';
 export function useGameRoom() {
@@ -29,9 +29,9 @@ export function useGameRoom() {
     const offline=()=>setConnected(false);window.addEventListener('offline',offline);
     return()=>{stop();clearInterval(timer);window.removeEventListener('focus',focus);window.removeEventListener('online',focus);window.removeEventListener('offline',offline);requestNumber.current++;};
   },[user,refresh]);
-  const perform=async(action:Parameters<typeof act>[0],gameId?:string,cell?:number,mode:GameMode='classic')=>{
+  const perform=async(action:Parameters<typeof act>[0],gameId?:string,cell?:number,mode:GameMode='classic',tactic:Tactic='place')=>{
     if(busy)return;setBusy(true);
-    try{const game=await act(action,gameId,cell,mode);if(game)setSelectedId(game.id);if(action==='cancel')setSelectedId(null);if(action==='create')notify('Challenge created. Waiting for an opponent.','success');if(action==='join')notify('Match joined. You’re O — make the first move!','success');if(action==='cancel')notify('Challenge cancelled.','info');if(action==='resign')notify('You resigned. The result is saved in match history.','info');await refresh();}
+    try{const game=await act(action,gameId,cell,mode,tactic);if(game)setSelectedId(game.id);if(action==='cancel')setSelectedId(null);if(action==='create')notify('Challenge created. Waiting for an opponent.','success');if(action==='join')notify('Match joined. You’re O — make the first move!','success');if(action==='cancel')notify('Challenge cancelled.','info');if(action==='resign')notify('You resigned. The result is saved in match history.','info');await refresh();}
     catch(e){notify(e instanceof Error?e.message:'Please try again.','error');await refresh();}finally{setBusy(false);}
   };
   const logout=async()=>{setBusy(true);try{await detachPushToken();await signOut();requestNumber.current++;setUser(null);setData(null);setSelectedId(null);notify('You’re signed out.','info');}catch(e){notify(e instanceof Error?e.message:'Unable to sign out.','error');}finally{setBusy(false);}};
