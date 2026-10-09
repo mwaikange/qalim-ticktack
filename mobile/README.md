@@ -1,6 +1,6 @@
 # QALIM tickTack Android app
 
-This small Expo app opens https://qalim-ticktack.vercel.app/ in a native WebView. It uses the live Supabase game and needs an internet connection. Web changes appear after Vercel deploys; changes to native code or icons need another APK build.
+This small Expo app opens https://qalim-ticktack.vercel.app/ in a native WebView. It uses the live Supabase game and needs an internet connection. Web changes appear after Vercel deploys. After users install the next store release, compatible wrapper JavaScript and bundled assets can also be delivered through EAS Update. Native modules, permissions and launcher icons still need a new store build. See [REMOTE-UPDATES.md](REMOTE-UPDATES.md) for testing, publishing, compatibility and rollback steps.
 
 Challenge push notifications require the Firebase configuration, Expo FCM V1 credentials, and Supabase setup described in [PUSH-SETUP.md](../PUSH-SETUP.md). Follow that guide before rebuilding this version. Notification permission is requested after sign-in; signing out disconnects the device.
 

@@ -3,6 +3,15 @@
     "name": "QALIM tickTack",
     "slug": "qalim-ticktack",
     "version": "1.0.0",
+    "runtimeVersion": { "policy": "fingerprint" },
+    "updates": {
+      "enabled": true,
+      "url": "https://u.expo.dev/f4a131a8-75d5-42d2-927b-9086901c3d57",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "useEmbeddedUpdate": true,
+      "disableAntiBrickingMeasures": false
+    },
     "orientation": "portrait",
     "icon": "./assets/app-icon.png",
     "userInterfaceStyle": "light",
