@@ -8,6 +8,7 @@ const buckets = new Map<string,{ count:number; until:number }>();
 function limit(key: string, max: number) { const now=Date.now(); if(buckets.size>10000) for(const [k,v] of buckets) if(v.until<now)buckets.delete(k); const item=buckets.get(key); if(!item || item.until<now) {buckets.set(key,{count:1,until:now+60000});return;} if(++item.count>max) throw new Error('Too many requests. Try again in a minute.'); }
 export async function GET(req: NextRequest) {
   if (configured()) return NextResponse.json({error:'Local mode is disabled.'},{status:404});
+  if(req.nextUrl.searchParams.get('challengers')==='1')return NextResponse.json({count:store().challengerCount()},{headers:{'Cache-Control':'no-store'}});
   const user = store().user(tokenOf(req));
   if(!user) return NextResponse.json({error:'Please sign in.'},{status:401});
   if(req.nextUrl.searchParams.get('stream') === '1') {

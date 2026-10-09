@@ -12,6 +12,12 @@ export const authCallbackHref = typeof window === 'undefined' ? '' : window.loca
 export const supabase = isSupabase ? createClient(url!, key!,{
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true},
 }) : null;
+export async function challengerCount():Promise<number>{
+  let value:unknown;
+  if(supabase){const {data,error}=await supabase.rpc('get_challenger_count');if(error)throw error;value=data;}
+  else{const response=await fetch('/api/local?challengers=1',{cache:'no-store'});if(!response.ok)throw new Error('Count unavailable');value=(await response.json()).count;}
+  const count=Number(value);if(value===null||!Number.isSafeInteger(count)||count<0)throw new Error('Count unavailable');return count;
+}
 async function local(body?: object) {
   const response=await fetch('/api/local',{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,cache:'no-store'});
   const data=await response.json(); if(!response.ok) throw new Error(data.error || 'Unable to connect. Try again.'); return data;

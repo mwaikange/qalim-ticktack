@@ -24,6 +24,7 @@ export class LocalStore {
     this.db.exec('CREATE TABLE IF NOT EXISTS game_bombs(game_id TEXT NOT NULL REFERENCES games(id) ON DELETE CASCADE,cell INTEGER NOT NULL,type TEXT NOT NULL,PRIMARY KEY(game_id,cell))');
   }
   notify() { this.listeners.forEach(fn => fn()); }
+  challengerCount(){return (this.db.prepare('SELECT count(*) AS total FROM users').get() as {total:number}).total;}
   atomic<T>(fn: () => T): T { this.db.exec('BEGIN IMMEDIATE'); try { const result = fn(); this.db.exec('COMMIT'); this.notify(); return result; } catch (e) { this.db.exec('ROLLBACK'); throw e; } }
   register(email: string, password: string, username: string): { user: Player; token: string } {
     email = email.trim().toLowerCase(); username = username.trim();

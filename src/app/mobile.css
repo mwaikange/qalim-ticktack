@@ -133,3 +133,8 @@ html:has(.auth-screen),body:has(.auth-screen){height:100%;overflow:hidden;oversc
   .auth-keyboard .auth-screen main{flex:1}
   .auth-keyboard .auth-screen .welcome-layout{height:100%;padding:8px 0}
 }
+
+/* Registered challenger total below the auth logo. */
+.auth-screen .brand-block{display:flex;flex-direction:column;align-items:center;gap:14px}
+.challenger-count{font-size:12px;line-height:1.4;color:#93998f;font-weight:400;letter-spacing:.15px;font-variant-numeric:tabular-nums}
+@media(max-height:600px){.auth-screen .brand-block{gap:8px}.challenger-count{font-size:11px}}

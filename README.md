@@ -95,3 +95,7 @@ npm start
 ```
 
 Tests cover every winning line, draws, invalid/occupied squares, turn order, outsiders, finished games, authentication, cancellation, duplicate joins, single active games, private history, resignation and rollback. A PGlite PostgreSQL integration test runs the actual Supabase migration and verifies RPC validation, RLS and private results with simulated Auth roles. Live Supabase Auth/Realtime and Vercel verification still require your configured project. No chat, rankings, tournaments or payments are included.
+
+## Challenger total
+
+Login and signup show the total registered players beneath the logo, refreshed every minute and when the app returns to the foreground. Run `supabase/migrations/202610090005_challenger_count.sql` in the existing project's SQL Editor to enable this count online. The public function returns only a number; account details stay protected. Until the count is available, the label stays hidden rather than showing a made-up total. Localhost counts its own registered users.

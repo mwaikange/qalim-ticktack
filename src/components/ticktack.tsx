@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { ArrowUpRight, ArrowLeft, Check, ChevronRight, CircleDot, Flag, Grid2X2, History as HistoryIcon, LoaderCircle, LogOut, Radio, RefreshCw, Swords, WifiOff, X } from 'lucide-react';
-import { authCallbackHref, isSupabase } from '@/lib/backend';
+import { authCallbackHref, challengerCount, isSupabase } from '@/lib/backend';
 import { recoveryCallbackRedirect } from '@/lib/password-reset';
 import { bombStory, modeLabel, movesPlayed, resultText, story, type GameMode, type Tactic } from '@/lib/game';
 import { useGameRoom } from '@/hooks/use-game-room';
@@ -24,6 +24,15 @@ export default function TickTack(){
 }
 function PlayRoom(){
   const room=useGameRoom();const {user,data,game,busy}=room;
+  const [challengers,setChallengers]=useState<number|null>(null);
+  useEffect(()=>{
+    if(user)return;
+    let active=true;let pending=false;
+    const refresh=async()=>{if(pending||document.hidden)return;pending=true;try{const total=await challengerCount();if(active)setChallengers(total);}catch{/* Keep an unavailable count hidden; never invent a total. */}finally{pending=false;}};
+    void refresh();const timer=window.setInterval(()=>void refresh(),60000);const focus=()=>void refresh();
+    window.addEventListener('focus',focus);window.addEventListener('online',focus);
+    return()=>{active=false;window.clearInterval(timer);window.removeEventListener('focus',focus);window.removeEventListener('online',focus);};
+  },[user]);
   const [splashComplete,setSplashComplete]=useState(false);
   useEffect(()=>{
     const timer=window.setTimeout(()=>setSplashComplete(true),4000);
@@ -47,7 +56,7 @@ function PlayRoom(){
   const opponentId=game?.player_x_id===user?.id?game?.player_o_id:game?.player_x_id;
   const opponentOnline=!!opponentId&&!!data?.onlineIds.includes(opponentId);
   if(!room.ready||!splashComplete)return <AppSplash/>;
-  return <div className={`app-shell ${user ? '' : 'auth-screen'}`}><header><a className="brand" href="/" aria-label="QALIM tickTack home"><span className="brand-icon"><span>×</span><span>○</span></span><span className="brand-name"><small>QALIM</small>tickTack<span className="brand-dot">.</span></span></a><div className="header-right"><span className="edition">{isSupabase?'ONLINE PLAY':'LOCALHOST EDITION'}</span>{user&&<><span className="user-chip"><span className="avatar">{user.username.slice(0,1).toUpperCase()}</span><span>{user.username}</span></span><button className="icon-button" disabled={busy} onClick={()=>void room.logout()} aria-label="Sign out" title="Sign out"><LogOut size={18}/></button></>}</div></header>
+  return <div className={`app-shell ${user ? '' : 'auth-screen'}`}><header><div className="brand-block"><a className="brand" href="/" aria-label="QALIM tickTack home"><span className="brand-icon"><span>×</span><span>○</span></span><span className="brand-name"><small>QALIM</small>tickTack<span className="brand-dot">.</span></span></a>{!user&&challengers!==null&&<p className="challenger-count">Challengers: {challengers.toLocaleString()}</p>}</div><div className="header-right"><span className="edition">{isSupabase?'ONLINE PLAY':'LOCALHOST EDITION'}</span>{user&&<><span className="user-chip"><span className="avatar">{user.username.slice(0,1).toUpperCase()}</span><span>{user.username}</span></span><button className="icon-button" disabled={busy} onClick={()=>void room.logout()} aria-label="Sign out" title="Sign out"><LogOut size={18}/></button></>}</div></header>
   <main>{!room.ready?<div className="initial-loading"><LoaderCircle className="spin"/><p>Getting your board ready…</p></div>:!user?<div className="welcome-layout"><section className="welcome"><div className="eyebrow"><span className="tiny-dot"/> TWO PLAYERS. NINE SQUARES.</div><h1>A little board.<br/>A big <em>rivalry.</em></h1><p>The classic you know, with a real opponent.<br/>Find a challenge. Take your turn. Make your mark.</p><div className="welcome-board" aria-hidden="true"><span className="hero-x">×</span><span/><span className="hero-o">○</span><span/><span className="hero-x">×</span><span/><span className="hero-o">○</span><span/><span className="hero-x highlight">×</span></div><div className="welcome-foot"><Check size={17}/> Real-time matches <span/> Saved match history <span/> Made for two</div></section><AuthForm onUser={room.setUser}/></div>:<>
   <div className="topline"><span className="breadcrumb">PLAYROOM <ChevronRight size={13}/>{game?'YOUR MATCH':tab==='history'?'MATCH HISTORY':'LOBBY'}</span><span className={`connection ${room.connected?'':'disconnected'}`}>{room.connected?<Radio size={13}/>:<WifiOff size={13}/>} {room.connected?'Live updates connected':'Reconnecting · retrying automatically'}</span></div>
 
