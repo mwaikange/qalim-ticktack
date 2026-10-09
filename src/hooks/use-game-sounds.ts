@@ -17,6 +17,13 @@ export function useGameSounds(game:Game|null,userId?:string) {
           const response=await fetch(kind==='self'?'/move-self.mp3':'/capture.mp3');
           if(!response.ok)throw new Error('Sound unavailable');
           const buffer=await context.decodeAudioData(await response.arrayBuffer());
+          // Raise both recordings to a strong level while keeping their peaks below clipping.
+          let peak=0;
+          for(let channel=0;channel<buffer.numberOfChannels;channel++)for(const sample of buffer.getChannelData(channel))peak=Math.max(peak,Math.abs(sample));
+          if(peak>0){
+            const gain=Math.min(3,.95/peak);
+            for(let channel=0;channel<buffer.numberOfChannels;channel++){const samples=buffer.getChannelData(channel);for(let i=0;i<samples.length;i++)samples[i]*=gain;}
+          }
           if(audio.current===context)buffers.current[kind]=buffer;
         })).catch(()=>{loading.current=false;});
       }
